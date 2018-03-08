@@ -1,4 +1,4 @@
-#IBEN-FML
+# IBEN-FML
 A fork of [IBEN 1.1](https://sourceforge.net/projects/iben/) originally created by Gerd Behrmann, with patches allowing compilation on modern Linux distributions, as well as other small improvements such as the ability to choose another postscript viewer then Ghostview, which IBEN 1.1 originally used.
 
 ## Dependencies
@@ -27,5 +27,5 @@ This is a list of all the changes made to the program, none of the patches shoul
 
 Note: if you only want the patches and not the source code, is a patch file provided in the patch folder.
 
-##License
+## License
 The program is licensed under version 2 of the GPL as IBEN originally was, and a copy of the license is bundled with the program. 
