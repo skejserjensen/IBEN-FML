@@ -19,5 +19,5 @@ AM_YFLAGS=-d
 BUILT_SOURCES = grammar.h
 
 bin_PROGRAMS=iben
-iben_SOURCES=iben.h grammar.yy input.ll main.cc
+iben_SOURCES=iben.h grammar.yy input.ll shell.cc main.cc
 dist_man_MANS=iben.1
