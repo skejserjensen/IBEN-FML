@@ -18,16 +18,11 @@
  */
 
 %{
+#include "iben.h"
+#include "shell.h"
+
 #include <cstdlib>
 #include <cstdio>
-
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <unistd.h>
-
-#include "iben.h"
-
-//#include "unistd.h"
 
 extern int yylex();
 extern char **environ;
@@ -167,14 +162,7 @@ T_QUIT
 help:
 T_HELP
 {
-    int pid;
-    int i;
-    if ( (pid = fork()) == 0) { 
-	execl("/bin/sh", "sh", "-c", "man iben", NULL); 
-	perror("iben"); 
-	exit(1);
-    }
-    do { i = wait(0); } while (i != -1 && i != pid);
+    render_help();
 };
 
 assignment
@@ -300,19 +288,19 @@ expraux '=' expraux
   delete $2;
 }
 |
-T_EXISTS expraux '(' expraux ')' 
+T_EXISTS expraux '(' expraux ')'
 {
     $$ = new bdd(bdd_exist(*$4, *$2));
     delete $2;
     delete $4;
-} 
-| 
-T_FORALL expraux '(' expraux ')' 
+}
+|
+T_FORALL expraux '(' expraux ')'
 {
     $$ = new bdd(bdd_forall(*$4, *$2));
     delete $2;
     delete $4;
-} 
+}
 |
 T_SUBST '[' pairs ']' '(' expraux ')'
 {
@@ -327,7 +315,7 @@ T_SUBST pairsvar '(' expraux ')'
     delete $4;
 };
 
-pairs  
+pairs
 :
 pairs var '/' var
 {
@@ -386,14 +374,14 @@ T_SATISFY expr
     bdd f;
     if (*$2 == bddfalse)
 	printf("Expression has no satisfying assignments\n");
-    else 
+    else
 	print_sat(*$2);
     delete $2;
 };
 
 clear
 :
-T_CLEAR T_ALL 
+T_CLEAR T_ALL
 {
   symbol_table.clear();
   name_table.clear();
@@ -423,13 +411,13 @@ T_LIMIT T_NUM
     bdd_setmaxnodenum($2);
 }
 |
-T_LIMIT T_NONE 
+T_LIMIT T_NONE
 {
     bdd_setmaxnodenum(0);
 };
 
 
-print 
+print
 :
 T_PRINT expr
 {
@@ -438,30 +426,15 @@ T_PRINT expr
     delete $2;
 };
 
-show 
-: 
-T_SHOW expr 
-{ 
-    FILE *stream; 
-    char cmd[128];
-    int pid = getpid();
-    snprintf(cmd, 128, "dot -Tps -Gcenter=1 -Gsize=\"7,10\" > /tmp/iben%ld.ps", pid);
-    stream = popen(cmd, "w"); 
-    if (stream == NULL) { 
-	fprintf(stderr, "Could not open external process\n"); 
-	YYERROR;
-    }
+show
+:
+T_SHOW expr
+{
+    FILE *stream = fopen(get_dot_input_path(), "w");
     printdot(stream, *$2);
     delete $2;
-    pclose(stream); 
-
-    snprintf(cmd, 128, PSV" /tmp/iben%ld.ps; rm /tmp/iben%ld.ps", pid, pid); 
-    if (!fork()) { 
-	printf("executing "PSV" \n"); 
-	execl("/bin/sh", "sh", "-c", cmd, NULL); 
-	perror("iben"); 
-	exit(1);
-    } 
+    fclose(stream);
+    render_dot();
 };
 
 size

@@ -17,11 +17,14 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include "config.h"
+
+#include "shell.h"
+
 #include <cstdio>
 #include <cstdlib>
 #include <set>
 #include <ctime>
-#include "config.h"
 
 #include <sys/resource.h>
 
@@ -32,9 +35,9 @@ extern "C" {
 #  elif defined(HAVE_READLINE_H)
 #    include <readline.h>
 #  else /* !defined(HAVE_READLINE_H) */
-extern char *readline ();
+    extern char *readline ();
 #  endif /* !defined(HAVE_READLINE_H) */
-char *cmdline = NULL;
+    char *cmdline = NULL;
 #else /* !defined(HAVE_READLINE_READLINE_H) */
 #error "IBEN requires readline to compile"
 #endif /* HAVE_LIBREADLINE */
@@ -45,11 +48,11 @@ char *cmdline = NULL;
 #  elif defined(HAVE_HISTORY_H)
 #    include <history.h>
 #  else /* !defined(HAVE_HISTORY_H) */
-extern void add_history ();
-extern int write_history ();
-extern int read_history ();
+    extern void add_history ();
+    extern int write_history ();
+    extern int read_history ();
 #  endif /* defined(HAVE_READLINE_HISTORY_H) */
-  /* no history */
+    /* no history */
 #endif /* HAVE_READLINE_HISTORY */
 }
 
@@ -86,7 +89,7 @@ const char *undefined(const char *id)
 
 static void make_keyword(const char *word, int code)
 {
-  keywords[word] = code;
+    keywords[word] = code;
 }
 
 void init_tables()
@@ -124,11 +127,11 @@ void st_entry::free()
     {
     case EXPR:
     case VAR:
-      info.expr.f = bddfalse;
-      break;
+	info.expr.f = bddfalse;
+	break;
     case VARASSOC:
-      bdd_freepair(info.varassoc.p);
-      break;
+	bdd_freepair(info.varassoc.p);
+	break;
     }
     type = NEW;
 }
@@ -144,14 +147,14 @@ void get_cpu_time(double *user, double *system)
 
 static const char *getname(int var)
 {
-  return name_table[var].c_str();
+    return name_table[var].c_str();
 }
 
 void print_sat(bdd r)
 {
-  bdd sat = bdd_satone(r);
-  bdd_printset(r);
-  printf("\n");
+    bdd sat = bdd_satone(r);
+    bdd_printset(r);
+    printf("\n");
 }
 
 static set<int> visited;
@@ -172,7 +175,7 @@ static void printdot_rec(FILE* ofile, bdd b)
 	fprintf(ofile, "%d -> %d [style=filled];\n", b.id(), bdd_high(b).id());
 
     visited.insert(b.id());
-   
+
     printdot_rec(ofile, bdd_low(b));
     printdot_rec(ofile, bdd_high(b));
 }
@@ -200,19 +203,20 @@ static void print_copyright()
 
 void print_version()
 {
-  printf("IBEN version 1.1, Copyright (C) 1998,2003 Gerd Behrmann\n");
-  printf("Compiled %s %s", __DATE__, __TIME__);
-#ifdef __GNUC__    
-  printf(" with GCC %s", __VERSION__);
+    printf("IBEN version 1.1, Copyright (C) 1998,2003 Gerd Behrmann\n");
+    printf("Compiled %s %s", __DATE__, __TIME__);
+#ifdef __GNUC__
+    printf(" with GCC %s", __VERSION__);
 #endif
-  printf("\n\n");
+    printf("\n\n");
 }
 
 int main(int argc, char **argv)
 {
-  char *s;
-  print_copyright();
-    
+    parse_options(argc, argv);
+    char *s;
+    print_copyright();
+
     bdd_init(100000, 20000);
     rl_bind_key ('\t', rl_insert);
     init_tables();
@@ -222,12 +226,12 @@ int main(int argc, char **argv)
     while (!terminated) {
 	s = readline("iben> ");
 	if (s == NULL)
-	  break;
+	    break;
 	if (*s) {
 #ifdef HAVE_READLINE_HISTORY
-	  add_history(s);
+	    add_history(s);
 #endif
-	  parse(s);
+	    parse(s);
 	}
 	free(s);
     }
