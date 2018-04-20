@@ -30,8 +30,8 @@
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
-#ifndef YY_YY_GRAMMAR_H_INCLUDED
-# define YY_YY_GRAMMAR_H_INCLUDED
+#ifndef YY_YY_GRAMMAR_HH_INCLUDED
+# define YY_YY_GRAMMAR_HH_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
 # define YYDEBUG 0
@@ -67,11 +67,12 @@ extern int yydebug;
     T_EXISTS = 277,
     T_FORALL = 278,
     T_SUBST = 279,
-    T_QUIT = 280,
-    T_HELP = 281,
-    T_IMPLIES = 282,
-    T_NONE = 283,
-    T_VERSION = 284
+    T_EXIT = 280,
+    T_QUIT = 281,
+    T_HELP = 282,
+    T_IMPLIES = 283,
+    T_NONE = 284,
+    T_VERSION = 285
   };
 #endif
 /* Tokens.  */
@@ -97,18 +98,19 @@ extern int yydebug;
 #define T_EXISTS 277
 #define T_FORALL 278
 #define T_SUBST 279
-#define T_QUIT 280
-#define T_HELP 281
-#define T_IMPLIES 282
-#define T_NONE 283
-#define T_VERSION 284
+#define T_EXIT 280
+#define T_QUIT 281
+#define T_HELP 282
+#define T_IMPLIES 283
+#define T_NONE 284
+#define T_VERSION 285
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 
 union YYSTYPE
 {
-#line 51 "grammar.yy" /* yacc.c:1909  */
+#line 48 "grammar.yy" /* yacc.c:1909  */
 
     st_entry *e;
     bdd *f;
@@ -116,7 +118,7 @@ union YYSTYPE
     bddPair *p;
     char *s;
 
-#line 120 "y.tab.h" /* yacc.c:1909  */
+#line 122 "grammar.hh" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -129,4 +131,4 @@ extern YYSTYPE yylval;
 
 int yyparse (void);
 
-#endif /* !YY_YY_GRAMMAR_H_INCLUDED  */
+#endif /* !YY_YY_GRAMMAR_HH_INCLUDED  */

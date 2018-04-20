@@ -113,6 +113,7 @@ void init_tables()
     make_keyword("exists", T_EXISTS);
     make_keyword("forall", T_FORALL);
     make_keyword("subst", T_SUBST);
+    make_keyword("exit", T_EXIT);
     make_keyword("quit", T_QUIT);
     make_keyword("satcount", T_SATCOUNT);
     make_keyword("version", T_VERSION);
