@@ -73,6 +73,7 @@ int yywrap(void)
 %token T_EXISTS
 %token T_FORALL
 %token T_SUBST
+%token T_EXIT
 %token T_QUIT
 %token T_HELP
 %token T_IMPLIES
@@ -151,6 +152,11 @@ help
 T_VERSION
 {
     print_version();
+}
+|
+T_EXIT
+{
+    terminated = true;
 }
 |
 T_QUIT

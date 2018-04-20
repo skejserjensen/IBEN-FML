@@ -26,7 +26,9 @@
 #include <set>
 #include <ctime>
 
+#ifndef __MINGW32__
 #include <sys/resource.h>
+#endif
 
 extern "C" {
 #ifdef HAVE_LIBREADLINE
@@ -138,11 +140,15 @@ void st_entry::free()
 
 void get_cpu_time(double *user, double *system)
 {
+#ifdef __MINGW32__
+    printf("get_cpu_time is not supported on this platform\n");
+#else
     struct rusage resources;
 
     getrusage(RUSAGE_SELF, &resources);
-    *user=resources.ru_utime.tv_sec+resources.ru_utime.tv_usec/1.0e6;
-    *system=resources.ru_stime.tv_sec+resources.ru_stime.tv_usec/1.0e6;
+    *user = resources.ru_utime.tv_sec + resources.ru_utime.tv_usec/1.0e6;
+    *system = resources.ru_stime.tv_sec + resources.ru_stime.tv_usec/1.0e6;
+#endif
 }
 
 static const char *getname(int var)

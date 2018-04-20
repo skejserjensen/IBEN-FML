@@ -13,6 +13,11 @@
 
 #include <unistd.h> // getpid
 
+#ifdef __MINGW32__
+#include <windows.h>
+#endif
+
+
 /** file-path to the dot-executable: */
 const char* dotpath_key = "DOTPATH";
 const char* dotpath_value = "dot";
@@ -53,6 +58,7 @@ void execute_command(const std::string& cmd)
 
 std::string find_browser()
 {
+#ifndef __MINGW32__
     auto xdg = getenv("XDG_SESSION_DESKTOP");
     if (xdg) {
 	auto f = popen("xdg-mime query default text/html", "r");
@@ -75,8 +81,34 @@ std::string find_browser()
 	if (strstr(desktop, "kde"))
 	    return "kde-open";
     }
+#endif
     return "firefox";
 }
+
+
+std::string get_temp_filepath(const char* ext)
+{
+#ifdef __MINGW32__
+    char tmpdir[128];
+    GetTempPath(sizeof(tmpdir), tmpdir);
+    char tmpfilepath[256];
+    GetTempFileName(tmpdir, "iben-", 1, tmpfilepath);
+    strncat(tmpfilepath, ".", sizeof(tmpfilepath)-1);
+    strncat(tmpfilepath, ext, sizeof(tmpfilepath)-1);
+    return tmpfilepath;
+#else
+    char tmp[128];
+    snprintf(tmp, sizeof(tmp), "/tmp/iben-XXXXXX.%s", ext);
+    auto f = mkstemps(tmp, strlen(ext)+1);
+    if (!f) {
+	perror("iben");
+	exit(1);
+    }
+    close(f);
+    return tmp;
+#endif
+}
+
 
 const char* get_property(const std::string& key)
 {
@@ -131,28 +163,12 @@ const char* get_property(const std::string& key)
     }
     if (key == dotinput_key) {
 	auto& value = props[key];
-	char tmp[] = "/tmp/iben-XXXXXX.dot";
-	auto f = mkstemps(tmp, 4);
-	if (!f) {
-	    perror("iben");
-	    exit(1);
-	}
-	close(f);
-	value = tmp;
+	value = get_temp_filepath("dot");
 	return value.c_str();
     }
     if (key == dotoutput_key) {
 	auto& value = props[key];
-	auto ext = get_property(format_key);
-	char tmp[80];
-	snprintf(tmp, sizeof(tmp), "/tmp/iben-XXXXXX.%s", ext);
-	auto f = mkstemps(tmp, strlen(ext)+1);
-	if (!f) {
-	    perror("iben");
-	    exit(1);
-	}
-	close(f);
-	value = tmp;
+	value = get_temp_filepath(get_property(format_key));
 	return value.c_str();
     }
     return nullptr;
@@ -205,33 +221,58 @@ void render_dot()
     auto dotcmd = get_property(dotcmd_key);
     execute_command(dotcmd);
 
-    //ShellExecute(0, 0, L"http://www.google.com", 0, 0 , SW_SHOW);
+#ifdef __MINGW32__
+    auto path = get_property(dotoutput_key);
+    std::cout << "open " << path << std::endl;
+    ShellExecute(0, 0, path, 0, 0 , SW_SHOW);
+#else
     auto viewcmd = get_property(viewcmd_key);
     execute_command(viewcmd);
+#endif
 }
 
 std::string get_install_dir()
 {
-    char buffer[256];
-    auto size = readlink("/proc/self/exe", buffer, sizeof(buffer));
+    char path[256];
+#ifdef __MINGW32__
+    auto res = GetModuleFileName(0, path, sizeof(path));
+    if (0 == res) {
+	fprintf(stderr, "Error getting install dir: %d\n", GetLastError());
+    } else {
+	auto slash = strrchr(path, '\\');
+	if (slash) {
+	    *slash = '\0';
+	    return path;
+	}
+    }
+#else
+    auto size = readlink("/proc/self/exe", path, sizeof(path));
     if (size < 0) {
 	perror("iben");
-	return ".";
+    } else {
+	auto slash = strrchr(path, '/');
+	if (slash) {
+	    *slash = '\0';
+	    return path;
+	}
     }
-    auto slash = strrchr(buffer, '/');
-    if (slash) {
-	*slash = '\0';
-	return buffer;
-    }
+#endif
     return ".";
 }
 
 void render_help()
 {
+#ifdef __MINGW32__
+    auto path = std::string(get_install_dir());
+    path += "\\iben.html";
+    std::cout << "open " << path << std::endl;
+    ShellExecute(0, 0, path.c_str(), 0, 0 , SW_SHOW);
+#else
     auto viewcmd = std::string(get_property(viewpath_key));
     viewcmd += " \"";
     viewcmd += get_install_dir();
     viewcmd += "/iben.html\"";
     execute_command(viewcmd);
+#endif
 }
 
