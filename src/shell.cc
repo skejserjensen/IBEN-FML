@@ -183,7 +183,7 @@ void set_property(const std::string& name, const std::string& value)
 void parse_options(int argc, char* argv[])
 {
     for (auto i = 1; i < argc; ++i) {
-	auto option = argv[1];
+	auto option = argv[i];
 	auto eq = std::strchr(option, '=');
 	if (eq) {
 	    auto key = std::string(option, eq-option);
@@ -201,7 +201,7 @@ void parse_options(int argc, char* argv[])
 		"DOTINPUT   -- path for dot-input file [mktmp]\n"
 		"DOTOUTPUT  -- path for dot-output file [mktmp]\n"
 		"DOTCMD     -- overrides the whole dot-command line\n"
-		"VIEWPATH   -- path to the viewer [browser]"
+		"VIEWPATH   -- path to the viewer [browser]\n"
 		"VIEWCMD    -- overrides the whole viewer command\n\n"
 		"For example, the following selects png format:\n"
 		"  " << argv[0] << " DOTFORMAT=png\n";
