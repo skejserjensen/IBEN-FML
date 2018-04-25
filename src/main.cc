@@ -17,52 +17,24 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "config.h"
-
 #include "shell.h"
+#include "iben.h"
+#include "grammar.h"
 
 #include <cstdio>
 #include <cstdlib>
 #include <set>
 #include <ctime>
 
+extern "C" {
+#include <readline/readline.h>
+#include <readline/history.h>
+}
+
 #ifndef __MINGW32__
 #include <sys/resource.h>
 #endif
 
-extern "C" {
-#ifdef HAVE_LIBREADLINE
-#  if defined(HAVE_READLINE_READLINE_H)
-#    include <readline/readline.h>
-#  elif defined(HAVE_READLINE_H)
-#    include <readline.h>
-#  else /* !defined(HAVE_READLINE_H) */
-    extern char *readline ();
-#  endif /* !defined(HAVE_READLINE_H) */
-    char *cmdline = NULL;
-#else /* !defined(HAVE_READLINE_READLINE_H) */
-#error "IBEN requires readline to compile"
-#endif /* HAVE_LIBREADLINE */
-
-#ifdef HAVE_READLINE_HISTORY
-#  if defined(HAVE_READLINE_HISTORY_H)
-#    include <readline/history.h>
-#  elif defined(HAVE_HISTORY_H)
-#    include <history.h>
-#  else /* !defined(HAVE_HISTORY_H) */
-    extern void add_history ();
-    extern int write_history ();
-    extern int read_history ();
-#  endif /* defined(HAVE_READLINE_HISTORY_H) */
-    /* no history */
-#endif /* HAVE_READLINE_HISTORY */
-}
-
-#ifdef NEW
-#undef NEW
-#endif
-#include "iben.h"
-#include "grammar.h"
 
 using std::map;
 using std::string;
