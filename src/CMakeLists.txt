@@ -22,7 +22,7 @@ find_library(readline_LIBRARY readline)
 find_library(termcap_LIBRARY termcap)
 find_library(bdd_LIBRARY bdd)
 
-add_executable(iben main.cc shell.cc
+add_executable(iben main.cc shell.cc cgi.cc
   "${CMAKE_CURRENT_BINARY_DIR}/grammar.cc"
   "${CMAKE_CURRENT_BINARY_DIR}/input.cc")
 
@@ -32,7 +32,7 @@ include_directories(iben
   )
 
 # https://cmake.org/cmake/help/latest/prop_gbl/CMAKE_CXX_KNOWN_FEATURES.html
-target_compile_features(iben PRIVATE cxx_auto_type)
+target_compile_features(iben PRIVATE cxx_auto_type cxx_std_17)
 
 target_link_libraries(iben
   ${bdd_LIBRARY}

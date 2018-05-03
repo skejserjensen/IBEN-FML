@@ -1,0 +1,23 @@
+------WebKitFormBoundaryo9JWHtgcpvBesijv
+Content-Disposition: form-data; name="scriptfile"; filename="xy.iben"
+Content-Type: application/octet-stream
+
+vars x y;
+
+a :=
+  x
+  +
+  y;
+
+show a;
+
+------WebKitFormBoundaryo9JWHtgcpvBesijv
+Content-Disposition: form-data; name="script"
+
+vars a b
+
+show 
+a
++
+b
+------WebKitFormBoundaryo9JWHtgcpvBesijv--

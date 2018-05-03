@@ -4,6 +4,7 @@
  */
 
 #include "shell.h"
+#include "cgi.h"
 
 #include <algorithm>
 #include <map>
@@ -208,6 +209,10 @@ void parse_options(int argc, char* argv[])
 	} else {
 	    std::cout << "Unhandled option: " << option << std::endl;
 	}
+    }
+    auto cgi = getenv("GATEWAY_INTERFACE"); // "CGI/1.1"
+    if (cgi) {
+	exit(handle_cgi(argc, argv));
     }
 }
 
