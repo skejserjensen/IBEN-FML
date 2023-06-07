@@ -18,5 +18,4 @@ extern const char* get_dot_input_path();
 extern void render_dot();
 extern void render_help();
 
-
 #endif /* SHELL_H */

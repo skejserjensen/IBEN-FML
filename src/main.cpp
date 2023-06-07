@@ -17,54 +17,50 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "shell.h"
-#include "iben.h"
 #include "grammar.h"
+#include "iben.hpp"
+#include "shell.hpp"
 
+#include <set>
 #include <cstdio>
 #include <cstdlib>
-#include <set>
 #include <ctime>
 
 extern "C" {
-#include <readline/readline.h>
 #include <readline/history.h>
+#include <readline/readline.h>
 }
 
 #ifndef __MINGW32__
 #include <sys/resource.h>
 #endif
 
-
 using std::map;
 using std::string;
 using std::set;
 
-extern int getrusage(int, struct rusage *);
+extern int getrusage(int, struct rusage*);
 
 bool terminated = false;
 bool interactive = true;
 bool timer_running = false;
 int line_number;
-map<string,st_entry> symbol_table;
-map<int,string> name_table;
-map<string,int> keywords;
+map<string, st_entry> symbol_table;
+map<int, string> name_table;
+map<string, int> keywords;
 double user_start;
 double system_start;
 double user_last;
 double system_last;
 
-const char *undefined(const char *id)
+const char* undefined(const char* id)
 {
     static char buff[1000];
     snprintf(buff, 1000, "`%s' undefined", id);
     return buff;
 }
 
-static void make_keyword(const char *word, int code)
-{
-    keywords[word] = code;
-}
+static void make_keyword(const char* word, int code) { keywords[word] = code; }
 
 void init_tables()
 {
@@ -91,27 +87,19 @@ void init_tables()
     make_keyword("version", T_VERSION);
 }
 
-st_entry::~st_entry()
-{
-    free();
-}
+st_entry::~st_entry() { free(); }
 
 void st_entry::free()
 {
-    switch (type)
-    {
+    switch (type) {
     case EXPR:
-    case VAR:
-	info.expr.f = bddfalse;
-	break;
-    case VARASSOC:
-	bdd_freepair(info.varassoc.p);
-	break;
+    case VAR: info.expr.f = bddfalse; break;
+    case VARASSOC: bdd_freepair(info.varassoc.p); break;
     }
     type = NEW;
 }
 
-void get_cpu_time(double *user, double *system)
+void get_cpu_time(double* user, double* system)
 {
 #ifdef __MINGW32__
     printf("get_cpu_time is not supported on this platform\n");
@@ -119,15 +107,12 @@ void get_cpu_time(double *user, double *system)
     struct rusage resources;
 
     getrusage(RUSAGE_SELF, &resources);
-    *user = resources.ru_utime.tv_sec + resources.ru_utime.tv_usec/1.0e6;
-    *system = resources.ru_stime.tv_sec + resources.ru_stime.tv_usec/1.0e6;
+    *user = resources.ru_utime.tv_sec + resources.ru_utime.tv_usec / 1.0e6;
+    *system = resources.ru_stime.tv_sec + resources.ru_stime.tv_usec / 1.0e6;
 #endif
 }
 
-static const char *getname(int var)
-{
-    return name_table[var].c_str();
-}
+static const char* getname(int var) { return name_table[var].c_str(); }
 
 void print_sat(bdd r)
 {
@@ -140,18 +125,15 @@ static set<int> visited;
 
 static void printdot_rec(FILE* ofile, bdd b)
 {
-    if (b == bdd_false() || b == bdd_true()
-	|| visited.find(b.id()) != visited.end())
-    {
-	return;
+    if (b == bdd_false() || b == bdd_true() || visited.find(b.id()) != visited.end()) {
+        return;
     }
 
-    fprintf(ofile, "%d [label=\"%s\"];\n",
-	    b.id(), getname(bdd_var(b)));
+    fprintf(ofile, "%d [label=\"%s\"];\n", b.id(), getname(bdd_var(b)));
     if (bdd_low(b) != bdd_false())
-	fprintf(ofile, "%d -> %d [style=dotted];\n", b.id(), bdd_low(b).id());
+        fprintf(ofile, "%d -> %d [style=dotted];\n", b.id(), bdd_low(b).id());
     if (bdd_high(b) != bdd_false())
-	fprintf(ofile, "%d -> %d [style=filled];\n", b.id(), bdd_high(b).id());
+        fprintf(ofile, "%d -> %d [style=filled];\n", b.id(), bdd_high(b).id());
 
     visited.insert(b.id());
 
@@ -164,7 +146,8 @@ void printdot(FILE* ofile, bdd r)
     visited.clear();
     fprintf(ofile, "digraph G {\n");
     fprintf(ofile, "preroot[style=invis]\n");
-    if (r != bdd_false()) fprintf(ofile, "preroot->%d\n", r.id());
+    if (r != bdd_false())
+        fprintf(ofile, "preroot->%d\n", r.id());
     fprintf(ofile, "1 [shape=box, label=\"1\", style=filled, shape=box, height=0.3, width=0.3];\n");
 
     printdot_rec(ofile, r);
@@ -190,29 +173,29 @@ void print_version()
     printf("\n\n");
 }
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
     parse_options(argc, argv);
-    char *s;
+    char* s;
     print_copyright();
 
     bdd_init(100000, 20000);
-    rl_bind_key ('\t', rl_insert);
+    rl_bind_key('\t', rl_insert);
     init_tables();
     line_number = 1;
 
     terminated = false;
     while (!terminated) {
-	s = readline("iben> ");
-	if (s == NULL)
-	    break;
-	if (*s) {
+        s = readline("iben> ");
+        if (s == NULL)
+            break;
+        if (*s) {
 #ifdef HAVE_READLINE_HISTORY
-	    add_history(s);
+            add_history(s);
 #endif
-	    parse(s);
-	}
-	free(s);
+            parse(s);
+        }
+        free(s);
     }
     printf("\n");
     return (0);

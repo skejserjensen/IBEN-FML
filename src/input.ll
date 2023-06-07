@@ -20,7 +20,7 @@
 %x incl
 
 %{
-#include "iben.h"
+#include "iben.hpp"
 #include "grammar.h"
 
 using std::map;

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.15)
 project(iben VERSION 1.2 LANGUAGES CXX)
 
 # https://cmake.org/cmake/help/v3.10/module/FindFLEX.html
@@ -20,22 +20,23 @@ endif()
 
 find_library(readline_LIBRARY readline)
 find_library(termcap_LIBRARY termcap)
-find_library(bdd_LIBRARY bdd)
+add_subdirectory(external/buddy bdd)
+# find_library(bdd_LIBRARY bdd)
 
-add_executable(iben main.cc shell.cc cgi.cc
+include_directories(iben
+        "${CMAKE_SOURCE_DIR}"         # iben.h
+        "${CMAKE_CURRENT_BINARY_DIR}" # grammar.h
+        )
+
+add_executable(iben main.cpp shell.cpp cgi.cpp
   "${CMAKE_CURRENT_BINARY_DIR}/grammar.cc"
   "${CMAKE_CURRENT_BINARY_DIR}/input.cc")
 
-include_directories(iben
-  "${CMAKE_SOURCE_DIR}"         # iben.h
-  "${CMAKE_CURRENT_BINARY_DIR}" # grammar.h
-  )
-
 # https://cmake.org/cmake/help/latest/prop_gbl/CMAKE_CXX_KNOWN_FEATURES.html
 target_compile_features(iben PRIVATE cxx_auto_type cxx_std_17)
-
+target_include_directories(iben PRIVATE "${PROJECT_SOURCE_DIR}/external/buddy/src")
 target_link_libraries(iben
-  ${bdd_LIBRARY}
+  bdd
   ${readline_LIBRARY}
   ${termcap_LIBRARY}        # for static linking with readline
   )

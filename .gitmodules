@@ -1,0 +1,6 @@
+[submodule "external/buddy"]
+	path = external/buddy
+	url = https://github.com/SSoelvsten/buddy
+[submodule "src/external/buddy"]
+	path = src/external/buddy
+	url = https://github.com/SSoelvsten/buddy

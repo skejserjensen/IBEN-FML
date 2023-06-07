@@ -17,17 +17,17 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-%{
-#include "iben.h"
-#include "shell.h"
+%code requires {
+#include "iben.hpp"
+#include "shell.hpp"
 
 #include <cstdlib>
 #include <cstdio>
 
 extern int yylex();
-extern char **environ;
+//extern char **environ;
 
-void yyerror(const char *s)
+inline void yyerror(const char *s)
 {
   if (interactive)
     fprintf(stderr, "Error: %s\n", s);
@@ -36,12 +36,12 @@ void yyerror(const char *s)
 }
 
 extern "C" {
-int yywrap(void)
+inline int yywrap(void)
 {
   return (1);
 }
 }
-%}
+}
 
 
 %union
